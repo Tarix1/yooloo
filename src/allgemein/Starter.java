@@ -7,27 +7,27 @@ package allgemein;
 import common.YoolooKartenspiel;
 
 public class Starter {
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
 //		Initialisieren des Spiels
 
-		YoolooKartenspiel yooloo = new YoolooKartenspiel();
-		yooloo.listeSpielstand();
+        YoolooKartenspiel yooloo = new YoolooKartenspiel();
+        yooloo.listeSpielstand();
 
 //		Registrieren der Spieler
-		yooloo.spielerRegistrieren("Juergen");
-		yooloo.spielerRegistrieren("Reiner");
-		yooloo.spielerRegistrieren("Benedikt");
-		yooloo.spielerRegistrieren("Olaf");
+        yooloo.spielerRegistrieren("Juergen");
+        yooloo.spielerRegistrieren("Reiner");
+        yooloo.spielerRegistrieren("Benedikt");
+        yooloo.spielerRegistrieren("Olaf");
 
 //		Sortieren der Karten
-		yooloo.spielerSortierungFestlegen();
+        yooloo.spielerSortierungFestlegen();
 
 //		Ausspielend der Runden
-		yooloo.spieleRunden();
+        yooloo.spieleRunden();
 
 //		Spielstand anzeigen
-		yooloo.listeSpielstand();
+        yooloo.listeSpielstand();
 
-	}
+    }
 }

@@ -8,29 +8,29 @@ import java.io.Serializable;
 
 public class YoolooKarte implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8114061865027839486L;
-	private common.YoolooKartenspiel.Kartenfarbe farbe;
-	private int wert;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 8114061865027839486L;
+    private final common.YoolooKartenspiel.Kartenfarbe farbe;
+    private final int wert;
 
-	public YoolooKarte(common.YoolooKartenspiel.Kartenfarbe kartenfarbe, int kartenwert) {
-		this.farbe = kartenfarbe;
-		this.wert = kartenwert;
-	}
+    public YoolooKarte(common.YoolooKartenspiel.Kartenfarbe kartenfarbe, int kartenwert) {
+        this.farbe = kartenfarbe;
+        this.wert = kartenwert;
+    }
 
-	public common.YoolooKartenspiel.Kartenfarbe getFarbe() {
-		return farbe;
-	}
+    public common.YoolooKartenspiel.Kartenfarbe getFarbe() {
+        return farbe;
+    }
 
-	public int getWert() {
-		return wert;
-	}
+    public int getWert() {
+        return wert;
+    }
 
-	@Override
-	public String toString() {
-		return "YoolooKarte [farbe=" + farbe + ", wert=" + wert + "]";
-	}
+    @Override
+    public String toString() {
+        return "YoolooKarte [farbe=" + farbe + ", wert=" + wert + "]";
+    }
 
 }

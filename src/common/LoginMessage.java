@@ -4,53 +4,53 @@
 
 package common;
 
-import java.io.Serializable;
-
 import server.YoolooServer.GameMode;
+
+import java.io.Serializable;
 
 public class LoginMessage implements Serializable {
 
-	private static final long serialVersionUID = -4012991046304922214L;
+    private static final long serialVersionUID = -4012991046304922214L;
 
-	private String spielerName;
-	private GameMode gameMode;
+    private String spielerName;
+    private GameMode gameMode;
 
-	public LoginMessage(String name, GameMode play_mode) {
-		super();
-		this.spielerName = name;
-		this.gameMode = play_mode;
-	}
+    public LoginMessage(String name, GameMode play_mode) {
+        super();
+        this.spielerName = name;
+        this.gameMode = play_mode;
+    }
 
-	public LoginMessage() {
-		super();
-		this.gameMode = GameMode.GAMEMODE_SINGLE_GAME;
-	}
+    public LoginMessage() {
+        super();
+        this.gameMode = GameMode.GAMEMODE_SINGLE_GAME;
+    }
 
-	public LoginMessage(String spielerName) {
-		super();
-		this.spielerName = spielerName;
-		this.gameMode = GameMode.GAMEMODE_SINGLE_GAME;
-	}
+    public LoginMessage(String spielerName) {
+        super();
+        this.spielerName = spielerName;
+        this.gameMode = GameMode.GAMEMODE_SINGLE_GAME;
+    }
 
-	public String getSpielerName() {
-		return spielerName;
-	}
+    public String getSpielerName() {
+        return spielerName;
+    }
 
-	public void setSpielerName(String spielerName) {
-		this.spielerName = spielerName;
-	}
+    public void setSpielerName(String spielerName) {
+        this.spielerName = spielerName;
+    }
 
-	public GameMode getGameMode() {
-		return gameMode;
-	}
+    public GameMode getGameMode() {
+        return gameMode;
+    }
 
-	public void setGameMode(GameMode gameMode) {
-		this.gameMode = gameMode;
-	}
+    public void setGameMode(GameMode gameMode) {
+        this.gameMode = gameMode;
+    }
 
-	@Override
-	public String toString() {
-		return "LoginMessage [spielerName=" + spielerName + ", gameMode=" + gameMode + "]";
-	}
+    @Override
+    public String toString() {
+        return "LoginMessage [spielerName=" + spielerName + ", gameMode=" + gameMode + "]";
+    }
 
 }
