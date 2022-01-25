@@ -26,22 +26,40 @@ public class YoolooSpieler implements Serializable, HasLogger {
         this.aktuelleSortierung = new YoolooKarte[maxKartenWert];
     }
 
-    // Sortierung wird zufuellig ermittelt
     public void sortierungFestlegen() {
         YoolooKarte[] neueSortierung = new YoolooKarte[this.aktuelleSortierung.length];
-        for (int i = 0; i < neueSortierung.length; i++) {
-            int neuerIndex = (int) (Math.random() * neueSortierung.length);
-            while (neueSortierung[neuerIndex] != null) {
-                neuerIndex = (int) (Math.random() * neueSortierung.length);
+        int[] kartenWerte = new int[this.aktuelleSortierung.length];
+
+        for (int i = kartenWerte.length; i > 0; i--) {
+
+            int min;
+            if (i > 7) {
+                min = 6;
+            } else {
+                min = 0;
             }
-            neueSortierung[neuerIndex] = aktuelleSortierung[i];
-            //  getLogger().info(i+ ". neuerIndex: "+neuerIndex);
+
+            boolean fieldFilled = false;
+            while (!fieldFilled) {
+                //Wähle ein zufälliges Feld (innerhalb der Range 7-10 oder 1-10) und wenn das Feld frei ist, füge ein
+                int randomField = (int) ((Math.random() * (kartenWerte.length - min)) + min);
+                if (!(kartenWerte[randomField] > 0)) {
+                    kartenWerte[randomField] = i;
+                    fieldFilled = true;
+                    //getLogger().info("fieldFilled: " + true);
+                }
+            }
         }
-        aktuelleSortierung = neueSortierung;
+        for (int i = 0; i < this.aktuelleSortierung.length; i++) {
+            getLogger().info(kartenWerte[i] + " | ");
+            // getLogger.info(kartenWerte[i] + " | ");
+            aktuelleSortierung[i].setWert(kartenWerte[i]);
+        }
+        // aktuelleSortierung[5].setWert(5);
     }
 
     public int erhaeltPunkte(int neuePunkte) {
-        System.out.print(name + " hat " + punkte + " P - erhaelt " + neuePunkte + " P - neue Summe: ");
+        getLogger().info(name + " hat " + punkte + " P - erhaelt " + neuePunkte + " P - neue Summe: ");
         this.punkte = this.punkte + neuePunkte;
         getLogger().info("" + this.punkte);
         return this.punkte;

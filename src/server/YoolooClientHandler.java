@@ -14,12 +14,16 @@ import messages.ServerMessage.ServerMessageResult;
 import messages.ServerMessage.ServerMessageType;
 import utils.HasLogger;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 
 public class YoolooClientHandler extends Thread implements HasLogger {
 
@@ -37,6 +41,8 @@ public class YoolooClientHandler extends Thread implements HasLogger {
     private YoolooSession session;
     private YoolooSpieler meinSpieler = null;
     private int clientHandlerId;
+
+    private Map<Integer, List<YoolooKarte>> spielerkartenMap = new HashMap<>();
 
     public YoolooClientHandler(YoolooServer yoolooServer, Socket clientSocket) {
         this.myServer = yoolooServer;
@@ -119,12 +125,8 @@ public class YoolooClientHandler extends Thread implements HasLogger {
                         getLogger().info("Undefinierter Serverstatus - tue mal nichts!");
                 }
             }
-        } catch (EOFException e) {
-            System.err.println(e);
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.err.println(e);
-            e.printStackTrace();
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE, "", e);
         } finally {
             getLogger().info("[ClientHandler" + clientHandlerId + "] Verbindung zu " + socketAddress + " beendet");
         }
@@ -161,19 +163,14 @@ public class YoolooClientHandler extends Thread implements HasLogger {
         try {
             antwortObject = ois.readObject();
             return antwortObject;
-        } catch (EOFException eofe) {
-            eofe.printStackTrace();
-        } catch (ClassNotFoundException cnfe) {
-            cnfe.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE, "Fehler bei Clientanwort", e);
         }
         return null;
     }
 
     private void registriereSpielerInSession(YoolooSpieler meinSpieler) {
-        System.out
-                .println("[ClientHandler" + clientHandlerId + "] registriereSpielerInSession " + meinSpieler.getName());
+        getLogger().info("[ClientHandler" + clientHandlerId + "] registriereSpielerInSession " + meinSpieler.getName());
         session.getAktuellesSpiel().spielerRegistrieren(meinSpieler);
     }
 
@@ -187,6 +184,16 @@ public class YoolooClientHandler extends Thread implements HasLogger {
      * @return
      */
     private YoolooStich spieleKarte(int stichNummer, YoolooKarte empfangeneKarte) {
+        if (spielerkartenMap.get(clientHandlerId) != null) {
+            for (YoolooKarte karte : spielerkartenMap.get(clientHandlerId)) {
+                if (karte.getWert() == empfangeneKarte.getWert() && karte.getFarbe().equals(empfangeneKarte.getFarbe())) {
+                    //getLogger.warn(clientHandlerId + " hat versucht die Karte " + empfangeneKarte + "doppelt zu legen");
+                    empfangeneKarte.setWert(0);
+                    break;
+                }
+            }
+        }
+
         YoolooStich aktuellerStich = null;
         getLogger().info("[ClientHandler" + clientHandlerId + "] spiele Stich Nr: " + stichNummer
                 + " KarteKarte empfangen: " + empfangeneKarte.toString());
@@ -197,9 +204,17 @@ public class YoolooClientHandler extends Thread implements HasLogger {
                 getLogger().info("[ClientHandler" + clientHandlerId + "] warte " + delay + " ms ");
                 Thread.sleep(delay);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                getLogger().log(Level.SEVERE, "Warten auf Client [" + clientHandlerId + "] unterbrochen", e);
             }
             aktuellerStich = session.stichFuerRundeAuswerten(stichNummer);
+            if (spielerkartenMap.get(clientHandlerId) == null) {
+                List<YoolooKarte> kartenNummern = new ArrayList<>();
+                kartenNummern.add(empfangeneKarte);
+                spielerkartenMap.put(clientHandlerId, kartenNummern);
+            } else {
+                spielerkartenMap.get(clientHandlerId).add(empfangeneKarte);
+            }
+
         }
         return aktuellerStich;
     }
@@ -246,5 +261,4 @@ public class YoolooClientHandler extends Thread implements HasLogger {
         ServerState_DISCONNECT, // Session beendet ausgespielet Resourcen werden freigegeben
         ServerState_DISCONNECTED // Session terminiert
     }
-
 }

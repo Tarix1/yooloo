@@ -123,9 +123,9 @@ public class YoolooKartenspiel implements HasLogger {
         int maxWert = 0;
         int anzahlKartenMitMaxWert = 0;
         for (int i = 0; i < karten.length; i++) {
-            System.out.print(i + ":" + karten[i].getWert() + " ");
+            getLogger().info(i + ":" + karten[i].getWert() + " ");
         }
-        System.out.println();
+        getLogger().info("");
         while (anzahlKartenMitMaxWert != 1) {
             maxWert = 0;
             for (int i = 0; i < karten.length; i++) {
@@ -159,7 +159,7 @@ public class YoolooKartenspiel implements HasLogger {
     public int berechneGewinnerIndex(YoolooKarte[] karten) {
         int maxwert = 0;
         for (int i = 0; i < karten.length; i++) {
-            System.out.print(i + ":" + karten[i].getWert() + " ");
+            getLogger().info(i + ":" + karten[i].getWert() + " ");
             if (maxwert < karten[i].getWert())
                 maxwert = karten[i].getWert();
         }

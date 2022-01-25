@@ -12,8 +12,8 @@ public class YoolooKarte implements Serializable {
      *
      */
     private static final long serialVersionUID = 8114061865027839486L;
-    private final common.YoolooKartenspiel.Kartenfarbe farbe;
-    private final int wert;
+    private YoolooKartenspiel.Kartenfarbe farbe;
+    private int wert;
 
     public YoolooKarte(common.YoolooKartenspiel.Kartenfarbe kartenfarbe, int kartenwert) {
         this.farbe = kartenfarbe;
@@ -26,6 +26,10 @@ public class YoolooKarte implements Serializable {
 
     public int getWert() {
         return wert;
+    }
+
+    public void setWert(int wert) {
+        this.wert = wert;
     }
 
     @Override

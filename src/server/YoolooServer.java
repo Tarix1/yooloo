@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 
 public class YoolooServer implements HasLogger {
 
@@ -58,8 +59,7 @@ public class YoolooServer implements HasLogger {
                     clientHandlerList.add(clientHandler);
                     getLogger().info("[YoolooServer] Anzahl verbundene Spieler: " + clientHandlerList.size());
                 } catch (IOException e) {
-                    getLogger().info("Client Verbindung gescheitert");
-                    e.printStackTrace();
+                    getLogger().log(Level.SEVERE, "Client Verbindung gescheitert", e);
                 }
 
                 // Neue Session starten wenn ausreichend Spieler verbunden sind!

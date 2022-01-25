@@ -19,6 +19,7 @@ import java.io.ObjectOutputStream;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.logging.Level;
 
 public class YoolooClient implements HasLogger {
 
@@ -110,9 +111,9 @@ public class YoolooClient implements HasLogger {
                 }
             }
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            getLogger().log(Level.SEVERE, "", e); //TODO MSG
         } catch (IOException e) {
-            e.printStackTrace();
+            getLogger().log(Level.SEVERE, "", e); //TODO MSG
         }
     }
 
@@ -151,7 +152,7 @@ public class YoolooClient implements HasLogger {
         getLogger().info("[id-" + meinSpieler.getClientHandlerId() + "]ClientStatus: " + clientState
                 + "] : Empfange Stich " + iStich);
         if (iStich.getSpielerNummer() == meinSpieler.getClientHandlerId()) {
-            System.out.print(
+            getLogger().info(
                     "[id-" + meinSpieler.getClientHandlerId() + "]ClientStatus: " + clientState + "] : Gewonnen - ");
             meinSpieler.erhaeltPunkte(iStich.getStichNummer() + 1);
         }
@@ -168,12 +169,9 @@ public class YoolooClient implements HasLogger {
         boolean failed = false;
         try {
             kommando = (ServerMessage) ois.readObject();
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             failed = true;
-            e.printStackTrace();
-        } catch (IOException e) {
-            failed = true;
-            e.printStackTrace();
+            getLogger().log(Level.SEVERE, "", e); //TODO MSG
         }
         if (failed)
             kommando = null;
@@ -184,7 +182,7 @@ public class YoolooClient implements HasLogger {
         try {
             meinSpieler = (YoolooSpieler) ois.readObject();
         } catch (ClassNotFoundException | IOException e) {
-            e.printStackTrace();
+            getLogger().log(Level.SEVERE, "Spieler konnte nicht empfangen werden", e);
         }
     }
 
@@ -192,7 +190,7 @@ public class YoolooClient implements HasLogger {
         try {
             return (YoolooStich) ois.readObject();
         } catch (ClassNotFoundException | IOException e) {
-            e.printStackTrace();
+            getLogger().log(Level.SEVERE, "Stich konnte nicht empfangen werden", e);
         }
         return null;
     }
@@ -201,7 +199,7 @@ public class YoolooClient implements HasLogger {
         try {
             return (String) ois.readObject();
         } catch (ClassNotFoundException | IOException e) {
-            e.printStackTrace();
+            getLogger().log(Level.SEVERE, "Ergebnis konnte nicht empfangen werden", e);
         }
         return null;
     }
