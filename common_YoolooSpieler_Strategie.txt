@@ -1,0 +1,46 @@
+Common YoolooSpieler (Start Zeile 28/29)
+
+    /**
+     * Spielstrategie: Die Karten 10, 9 & 8 werden zuerst auf drei der vier höhsten Positionen (7 - 10) verteilt (ein Feld wird erst später befüllt).
+     * Lokales Array "kartenWerte" wird erstellt und nach dem folgendem Prinzip befüllt:
+     * ---
+     * Für die erste For-Schleife gilt i = Kartenwert -> fängt bei 10 an und zählt runter.
+     * Wenn 10 - 8 verteilt wurde ändert sich die Zufalls-Range von 7 - 10 zu 1 - 10 -> restliche Positionen werden gefüllt.
+     * Ein Feld wird gewählt -> wenn es frei ist: füge die gegebene Karte i ein.
+     * --- 
+     * Für die zweite For-Schleife gilt i = index für das lokale Array (Normalfall: 0 - 9).
+     * Geht Feld für Feld durch das befüllte lokale Array "kartenWerte" und überträgt den Inhalt in "aktuelleSortierung". 
+     */
+    
+
+
+
+    public void sortierungFestlegen() {
+        int[] kartenWerte = new int[this.aktuelleSortierung.length];
+        //i = Karte, startet bei 10 -> setzt zuerst die Position von 10, 9, 8 fest, bevor es die Zufalls-Range ändert
+        for (int i = kartenWerte.length; i > 0; i--) {
+            int min;
+            //Legt Karte 10,9 & 8 auf drei der vier Positionen 10,9,8 & 7 (eine zufällige Position bleibt frei)
+            if (i > 7) {
+                min = 6;
+            } else {
+                min = 0;
+            }
+            boolean fieldFilled = false;
+            while (!fieldFilled) {
+                //Wähle ein zufälliges Feld (innerhalb der Range 7-10 oder 1-10) und wenn das Feld frei ist -> füge ein
+                int randomField = (int) ((Math.random() * (kartenWerte.length - min)) + min);
+                if (!(kartenWerte[randomField] > 0)) {
+                    kartenWerte[randomField] = i;
+                    fieldFilled = true;
+                    //getLogger().info("fieldFilled: " + true);
+                }
+            }
+        }
+        //i = Index 0 bis max. Index des generierte Arrays "kartenWerte". Überschreibt Feld für Feld die „aktuelleSortierung“ des/der gegebenen Spielers/in. Spielstrategie ENDE
+        for (int i = 0; i < this.aktuelleSortierung.length; i++) {
+            getLogger().info(kartenWerte[i] + " | ");
+            // getLogger.info(kartenWerte[i] + " | ");
+            aktuelleSortierung[i].setWert(kartenWerte[i]);
+        }
+    }
