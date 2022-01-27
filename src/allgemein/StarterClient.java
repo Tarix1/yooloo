@@ -7,8 +7,8 @@ package allgemein;
 import client.YoolooClient;
 
 public class StarterClient {
-    public static void main(String[] args) {
 
+    public static void main(String[] args) {
         // Starte Client
         String hostname = "localhost";
 //		String hostname = "10.101.251.247";

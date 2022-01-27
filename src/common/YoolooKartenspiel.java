@@ -5,19 +5,20 @@
 package common;
 
 import utils.HasLogger;
+import utils.Statics;
 
 import java.util.ArrayList;
 
 
 public class YoolooKartenspiel implements HasLogger {
 
-    public final static int minKartenWert = 1;
-    public final static int maxKartenWert = 10;
+
     protected YoolooKarte[][] spielkarten;
     protected int anzahlFarben = YoolooKartenspiel.Kartenfarbe.values().length;
-    protected int anzahlWerte = maxKartenWert;
+    protected int anzahlWerte = Statics.maxKartenWert;
     ArrayList<YoolooSpieler> spielerliste = new ArrayList<YoolooSpieler>();
     private String Spielname = "Yooloo";
+
     /**
      * Erstellen einer neuen Spielumgebung Definition des Spielnamens der
      * Spielkarten
@@ -57,7 +58,7 @@ public class YoolooKartenspiel implements HasLogger {
      * @return
      */
     public YoolooSpieler spielerRegistrieren(String name) {
-        YoolooSpieler neuerSpieler = new YoolooSpieler(name, maxKartenWert);
+        YoolooSpieler neuerSpieler = new YoolooSpieler(name, Statics.maxKartenWert);
         Kartenfarbe[] farben = Kartenfarbe.values();
         neuerSpieler.setSpielfarbe(farben[spielerliste.size()]);
         YoolooKarte[] spielerkarten = spielkarten[spielerliste.size()];
@@ -119,7 +120,7 @@ public class YoolooKartenspiel implements HasLogger {
 
     public int berechneGewinnerIndexV1_Buggy(YoolooKarte[] karten) {
 
-        int limitWert = maxKartenWert + 1;
+        int limitWert = Statics.maxKartenWert + 1;
         int maxWert = 0;
         int anzahlKartenMitMaxWert = 0;
         for (int i = 0; i < karten.length; i++) {

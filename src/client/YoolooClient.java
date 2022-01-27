@@ -5,13 +5,13 @@
 package client;
 
 import common.LoginMessage;
-import common.YoolooKartenspiel;
 import common.YoolooSpieler;
 import common.YoolooStich;
 import messages.ClientMessage;
 import messages.ClientMessage.ClientMessageType;
 import messages.ServerMessage;
 import utils.HasLogger;
+import utils.Statics;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -24,14 +24,12 @@ import java.util.logging.Level;
 public class YoolooClient implements HasLogger {
 
     private final String serverHostname = "localhost";
+    private final String spielerName = "Name" + (System.currentTimeMillis() + "").substring(6);
     private int serverPort = 44137;
     private Socket serverSocket = null;
     private ObjectInputStream ois = null;
     private ObjectOutputStream oos = null;
-
     private ClientState clientState = ClientState.CLIENTSTATE_NULL;
-
-    private final String spielerName = "Name" + (System.currentTimeMillis() + "").substring(6);
     private LoginMessage newLogin = null;
     private YoolooSpieler meinSpieler;
     private YoolooStich[] spielVerlauf = null;
@@ -49,12 +47,16 @@ public class YoolooClient implements HasLogger {
     /**
      * Client arbeitet statusorientiert als Kommandoempfuenger in einer Schleife.
      * Diese terminiert wenn das Spiel oder die Verbindung beendet wird.
+     *
+     * Ohne hinzugefügte try catch Blöcke läuft die while-Schleife unendlich weiter bei einem Fehler
      */
     public void startClient() {
 
         try {
             clientState = ClientState.CLIENTSTATE_CONNECT;
             verbindeZumServer();
+
+            //this.logInServer();
 
             while (clientState != ClientState.CLIENTSTATE_DISCONNECTED && ois != null && oos != null) {
                 // 1. Schritt Kommado empfangen
@@ -68,39 +70,59 @@ public class YoolooClient implements HasLogger {
                 // 3. Schritt Kommandospezifisch reagieren
                 switch (kommandoMessage.getServerMessageType()) {
                     case SERVERMESSAGE_SENDLOGIN:
-                        // Server fordert Useridentifikation an
-                        // Falls User local noch nicht bekannt wird er bestimmt
-                        if (newLogin == null || clientState == ClientState.CLIENTSTATE_LOGIN) {
-                            // TODO Klasse LoginMessage erweiteren um Interaktives ermitteln des
-                            // Spielernames, GameModes, ...)
-                            newLogin = eingabeSpielerDatenFuerLogin(); //Dummy aufruf
-                            newLogin = new LoginMessage(spielerName);
+                        try {
+                            // Server fordert Useridentifikation an
+                            // Falls User local noch nicht bekannt wird er bestimmt
+                            if (newLogin == null || clientState == ClientState.CLIENTSTATE_LOGIN) {
+                                // TODO Klasse LoginMessage erweiteren um Interaktives ermitteln des
+                                // Spielernames, GameModes, ...)
+                                newLogin = eingabeSpielerDatenFuerLogin(); //Dummy aufruf
+                                newLogin = new LoginMessage(spielerName);
+                            }
+                            // Client meldet den Spieler an den Server
+                            oos.writeObject(newLogin);
+                            getLogger().info("[id-x]ClientStatus: " + clientState + "] : LoginMessage fuer  " + spielerName
+                                    + " an server gesendet warte auf Spielerdaten");
+                            empfangeSpieler();
+                            // ausgabeKartenSet();
+                        } catch (Exception e) {
+                            getLogger().log(Level.SEVERE, "Login konnte nicht durchgeführt werden", e);
+                            clientState = ClientState.CLIENTSTATE_DISCONNECTED;
                         }
-                        // Client meldet den Spieler an den Server
-                        oos.writeObject(newLogin);
-                        getLogger().info("[id-x]ClientStatus: " + clientState + "] : LoginMessage fuer  " + spielerName
-                                + " an server gesendet warte auf Spielerdaten");
-                        empfangeSpieler();
-                        // ausgabeKartenSet();
                         break;
                     case SERVERMESSAGE_SORT_CARD_SET:
-                        // sortieren Karten
-                        meinSpieler.sortierungFestlegen();
-                        ausgabeKartenSet();
-                        // ggfs. Spielverlauf löschen
-                        spielVerlauf = new YoolooStich[YoolooKartenspiel.maxKartenWert];
-                        ClientMessage message = new ClientMessage(ClientMessageType.ClientMessage_OK,
-                                "Kartensortierung ist erfolgt!");
-                        oos.writeObject(message);
+                        try {
+                            // sortieren Karten
+                            meinSpieler.sortierungFestlegen();
+                            ausgabeKartenSet();
+                            // ggfs. Spielverlauf löschen
+                            spielVerlauf = new YoolooStich[Statics.maxKartenWert];
+                            ClientMessage message = new ClientMessage(ClientMessageType.ClientMessage_OK,
+                                    "Kartensortierung ist erfolgt!");
+                            oos.writeObject(message);
+                        } catch (Exception e) {
+                            getLogger().log(Level.SEVERE, "Karten konnten nicht sortiert werden", e);
+                            clientState = ClientState.CLIENTSTATE_DISCONNECTED;
+                        }
                         break;
                     case SERVERMESSAGE_SEND_CARD:
-                        spieleStich(kommandoMessage.getParamInt());
+                        try {
+                            spieleStich(kommandoMessage.getParamInt());
+                        } catch (Exception e) {
+                            getLogger().log(Level.SEVERE, "Senden der Karte ist fehlgeschlagen", e);
+                            clientState = ClientState.CLIENTSTATE_DISCONNECTED;
+                        }
                         break;
                     case SERVERMESSAGE_RESULT_SET:
-                        getLogger().info("[id-" + meinSpieler.getClientHandlerId() + "]ClientStatus: " + clientState
-                                + "] : Ergebnis ausgeben ");
-                        String ergebnis = empfangeErgebnis();
-                        getLogger().info(ergebnis);
+                        try {
+                            getLogger().info("[id-" + meinSpieler.getClientHandlerId() + "]ClientStatus: " + clientState
+                                    + "] : Ergebnis ausgeben ");
+                            String ergebnis = empfangeErgebnis();
+                            getLogger().info(ergebnis);
+                        } catch (Exception e) {
+                            getLogger().log(Level.SEVERE, "Ergebnis konnte nicht gesetzt werden", e);
+                            clientState = ClientState.CLIENTSTATE_DISCONNECTED;
+                        }
                         break;
                     // basic version: wechsel zu ClientState Disconnected thread beenden
                     case SERVERMESSAGE_CHANGE_STATE:
@@ -110,10 +132,8 @@ public class YoolooClient implements HasLogger {
                         break;
                 }
             }
-        } catch (UnknownHostException e) {
-            getLogger().log(Level.SEVERE, "", e); //TODO MSG
-        } catch (IOException e) {
-            getLogger().log(Level.SEVERE, "", e); //TODO MSG
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE, "", e);
         }
     }
 
@@ -141,6 +161,10 @@ public class YoolooClient implements HasLogger {
         // Kommunikationskanuele einrichten
         ois = new ObjectInputStream(serverSocket.getInputStream());
         oos = new ObjectOutputStream(serverSocket.getOutputStream());
+    }
+
+    private void logInServer() throws Exception {
+        oos.writeObject(this.spielerName);
     }
 
     private void spieleStich(int stichNummer) throws IOException {
@@ -171,14 +195,14 @@ public class YoolooClient implements HasLogger {
             kommando = (ServerMessage) ois.readObject();
         } catch (Exception e) {
             failed = true;
-            getLogger().log(Level.SEVERE, "", e); //TODO MSG
+            getLogger().log(Level.SEVERE, "Kommando nicht empfangen", e);
         }
         if (failed)
             kommando = null;
         return kommando;
     }
 
-    private void empfangeSpieler() {
+    private void empfangeSpieler() throws ClassCastException {
         try {
             meinSpieler = (YoolooSpieler) ois.readObject();
         } catch (ClassNotFoundException | IOException e) {
@@ -189,7 +213,7 @@ public class YoolooClient implements HasLogger {
     private YoolooStich empfangeStich() {
         try {
             return (YoolooStich) ois.readObject();
-        } catch (ClassNotFoundException | IOException e) {
+        } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Stich konnte nicht empfangen werden", e);
         }
         return null;

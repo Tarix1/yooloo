@@ -12,7 +12,7 @@ public class YoolooKarte implements Serializable {
      *
      */
     private static final long serialVersionUID = 8114061865027839486L;
-    private YoolooKartenspiel.Kartenfarbe farbe;
+    private final YoolooKartenspiel.Kartenfarbe farbe;
     private int wert;
 
     public YoolooKarte(common.YoolooKartenspiel.Kartenfarbe kartenfarbe, int kartenwert) {

@@ -5,18 +5,22 @@
 package server;
 
 import common.YoolooKartenspiel;
+import common.YoolooSpieler;
 import utils.HasLogger;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
 public class YoolooServer implements HasLogger {
 
+    public static Map<String, YoolooSpieler> PLAYER_LIST = new HashMap<>();
     // Server Standardwerte koennen ueber zweite Konstruktor modifiziert werden!
     private int port = 44137;
     private int spielerProRunde = 8; // min 1, max Anzahl definierte Farben in Enum YoolooKartenSpiel.KartenFarbe)
@@ -41,9 +45,9 @@ public class YoolooServer implements HasLogger {
         this.serverGameMode = serverGameMode;
     }
 
-	public void startServer() {
+    public void startServer() {
         try {
-            // Init
+            // Init        	
             serverSocket = new ServerSocket(port);
             spielerPool = Executors.newCachedThreadPool();
             clientHandlerList = new ArrayList<YoolooClientHandler>();
@@ -60,6 +64,8 @@ public class YoolooServer implements HasLogger {
                     getLogger().info("[YoolooServer] Anzahl verbundene Spieler: " + clientHandlerList.size());
                 } catch (IOException e) {
                     getLogger().log(Level.SEVERE, "Client Verbindung gescheitert", e);
+                    //} catch (ClassNotFoundException e) {
+                    //	getLogger().log(Level.SEVERE, "Username konnte nicht empfangen werden", e);
                 }
 
                 // Neue Session starten wenn ausreichend Spieler verbunden sind!
@@ -80,10 +86,9 @@ public class YoolooServer implements HasLogger {
                     clientHandlerList = new ArrayList<YoolooClientHandler>();
                 }
             }
-        } catch (IOException e1) {
-            getLogger().info("ServerSocket nicht gebunden");
+        } catch (IOException e) {
             serverAktiv = false;
-            e1.printStackTrace();
+            getLogger().log(Level.SEVERE, "ServerSocket nicht gebunden", e);
         }
 
     }
@@ -98,6 +103,7 @@ public class YoolooServer implements HasLogger {
             getLogger().info("Servercode falsch");
         }
     }
+
 
     /**
      * Serverseitig durch ClientHandler angebotenen SpielModi. Bedeutung der

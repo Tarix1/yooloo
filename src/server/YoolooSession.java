@@ -9,21 +9,22 @@ import common.YoolooKartenspiel;
 import common.YoolooStich;
 import server.YoolooServer.GameMode;
 import utils.HasLogger;
+import utils.Statics;
 
 public class YoolooSession implements HasLogger {
 
+    private final YoolooStich[] ausgewerteteStiche;
     private int anzahlSpielerInRunde;
     private GameMode gamemode = GameMode.GAMEMODE_NULL;
     private YoolooKarte[][] spielplan;
     private YoolooKartenspiel aktuellesSpiel;
-    private final YoolooStich[] ausgewerteteStiche;
 
     public YoolooSession(int anzahlSpielerInRunde) {
         super();
         this.anzahlSpielerInRunde = anzahlSpielerInRunde;
         gamemode = GameMode.GAMEMODE_NULL;
-        spielplan = new YoolooKarte[YoolooKartenspiel.maxKartenWert][anzahlSpielerInRunde];
-        ausgewerteteStiche = new YoolooStich[YoolooKartenspiel.maxKartenWert];
+        spielplan = new YoolooKarte[Statics.maxKartenWert][anzahlSpielerInRunde];
+        ausgewerteteStiche = new YoolooStich[Statics.maxKartenWert];
         for (int i = 0; i < ausgewerteteStiche.length; i++) {
             ausgewerteteStiche[i] = null;
         }
